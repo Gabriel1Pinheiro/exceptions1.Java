@@ -1,6 +1,9 @@
 package Application;
-import Model.entities.Reservation;
 
+import Model.entities.Reservation;
+import Model.exceptions.DomainException;
+
+import javax.management.RuntimeMBeanException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,17 +15,14 @@ public class Program {
         Scanner sc = new Scanner(System.in);
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-        System.out.print("número no quarto: ");
-        int roomNumber = sc.nextInt();
-        System.out.print("Check-in data (dd/MM/yyyy): ");
-        Date checkIn = sdf.parse(sc.next());
-        System.out.print("Check-out data (dd/MM/yyyy): ");
-        Date checkOut = sdf.parse(sc.next());
+        try {
+            System.out.print("número no quarto: ");
+            int roomNumber = sc.nextInt();
+            System.out.print("Check-in data (dd/MM/yyyy): ");
+            Date checkIn = sdf.parse(sc.next());
+            System.out.print("Check-out data (dd/MM/yyyy): ");
+            Date checkOut = sdf.parse(sc.next());
 
-        if (!checkOut.after(checkIn)){
-            System.out.println("Erro na reserva: A data de check-out deve ser posterior à data de check-in");
-        }
-        else{
             Reservation reservation = new Reservation(roomNumber, checkIn, checkOut);
             System.out.println("Reserva: " + reservation);
 
@@ -33,16 +33,19 @@ public class Program {
             System.out.print("Check-out data (dd/MM/yyyy): ");
             checkOut = sdf.parse(sc.next());
 
-            String error = reservation.updateDate(checkIn, checkOut);
-           if (error != null){
-               System.out.println("Erro na reserva: " + error);
-           }
-           else {
+            reservation.updateDate(checkIn, checkOut);
+            System.out.println("Reserva: " + reservation);
 
-               System.out.println("Reserva: " + reservation);
-           }
-
+        } catch (ParseException e) {
+            System.out.println("Data invalida: ");
         }
+        catch (DomainException e) {
+            System.out.println("Erro na reserva: " + e.getMessage());
+        }
+        catch (RuntimeMBeanException e){
+            System.out.println("Erro inesperado");
+        }
+
         sc.close();
     }
 }
